@@ -1,0 +1,24 @@
+{
+  "name": "typing-speed-test-with-growth_final",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sujeeth-reddy12/typing_speed_test_web_application.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sujeeth-reddy12/typing_speed_test_web_application/issues"
+  },
+  "homepage": "https://github.com/sujeeth-reddy12/typing_speed_test_web_application#readme",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^8.19.2"
+  }
+}
