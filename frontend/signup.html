@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Signup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Sign Up</h1>
+    <form id="signupForm">
+      <input type="text" id="username" placeholder="Username"><br><br>
+      <input type="email" id="email" placeholder="Email" required><br><br>
+      <input type="password" id="password" placeholder="Password" required><br><br>
+      <button type="submit">Sign Up</button>
+    </form>
+    <p>Already have an account? <a href="login.html">Login</a></p>
+  </div>
+  <script>
+    // Signup with backend, fallback to localStorage mock if network fails
+    document.getElementById('signupForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      // try backend first
+      try{
+        const res = await fetch('/api/users/signup', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ username, email, password })
+        });
+        const j = await res.json();
+        if(res.ok){
+          localStorage.setItem('token', j.token || '');
+          localStorage.setItem('user', JSON.stringify(j.user || {username,email}));
+          alert('Signed up (backend)');
+          window.location.href='index.html';
+          return;
+        } else {
+          // fallthrough to local mock
+          console.warn('Backend signup failed:', j);
+        }
+      }catch(err){
+        console.warn('Backend signup not reachable, using local fallback.', err);
+      }
+
+      // Local fallback
+      const users = JSON.parse(localStorage.getItem('mock_users')||'[]');
+      if(users.find(u=>u.email===email)){
+        alert('Email already registered (local).');
+        return;
+      }
+      const newUser = {username, email, password};
+      users.push(newUser);
+      localStorage.setItem('mock_users', JSON.stringify(users));
+      localStorage.setItem('user', JSON.stringify(newUser));
+      alert('Signed up (local)');
+      window.location.href='index.html';
+    });
+  </script>
+</body>
+</html>

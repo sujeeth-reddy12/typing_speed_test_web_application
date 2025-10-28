@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Typing Test</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .test-container {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      width: 80%;
+      max-width: 900px;
+      text-align: center;
+    }
+
+    #timer {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    #paragraph {
+      font-size: 18px;
+      line-height: 1.6;
+      text-align: justify;
+      margin: 20px auto;
+      width: 95%;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: #fafafa;
+      min-height: 180px;
+      transition: all 0.3s ease-in-out;
+    }
+
+    #paragraph span {
+      padding: 2px 3px;
+      border-radius: 4px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .correct {
+      color: green;
+      font-weight: bold;
+    }
+    .incorrect {
+      color: red;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    .current {
+      background: yellow;
+      color: black;
+    }
+
+    #typed {
+      margin-top: 20px;
+      width: 90%;
+      height: 130px;
+      font-size: 16px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+      outline: none;
+    }
+
+    #finishBtn {
+      margin-top: 20px;
+      padding: 12px 25px;
+      font-size: 16px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease-in-out;
+    }
+
+    #finishBtn:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h2 id="timer"></h2>
+    <div id="paragraph"></div>
+    <textarea id="typed" placeholder="Start typing here..."></textarea>
+    <br>
+    <div style="margin-top:10px;">
+      <button id="finishBtn" style="display:none;margin-right:10px;" onclick="finishTest()">Finish</button>
+      <button id="restartBtn" onclick="restartTest()">Restart</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+<script>
+(function(){
+  try{
+    const user = localStorage.getItem('user');
+    if(!user){
+      window.location.href = 'login.html';
+      return;
+    }
+    if(!document.getElementById('logoutBtn')){
+      const logout = document.createElement('button');
+      logout.id = 'logoutBtn';
+      logout.textContent = 'Logout';
+      logout.className = 'logout-button';
+      logout.addEventListener('click', ()=>{
+        localStorage.clear();
+        window.location.href = 'login.html';
+      });
+      document.body.appendChild(logout);
+    }
+  }catch(e){ console.warn(e); }
+})();
+</script>
+</body>
+</html>

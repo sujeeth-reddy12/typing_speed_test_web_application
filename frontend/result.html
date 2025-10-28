@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Typing Test Result</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Add Chart.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="result"
+       style="text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; height:auto; padding:30px;">
+    <h1>Typing Test Result</h1>
+    <p id="resultText" style="font-size:18px; margin-top:10px;"></p>
+
+    <!-- Growth Analysis -->
+    <div id="growthContainer" style="margin-top:30px; max-width:900px; width:95%; text-align:left;">
+      <h2>📊 Growth Analysis</h2>
+      <div id="growthContent" style="margin-bottom:20px;">Loading growth data...</div>
+      
+      <!-- Graph Section -->
+      <div style="margin-top:30px;">
+        <h2>📈 Performance Graphs</h2>
+        
+        <!-- Graph Type Selector -->
+        <div style="margin-bottom:15px; text-align:center;">
+          <label for="chartType" style="margin-right:10px; font-weight:bold;">Chart Type:</label>
+          <select id="chartType" onchange="updateChartType()" style="padding:5px 10px; border-radius:5px; border:1px solid #ccc;">
+            <option value="bar">Bar Chart</option>
+            <option value="line">Line Chart</option>
+            <option value="radar">Radar Chart</option>
+            <option value="polarArea">Polar Area</option>
+          </select>
+        </div>
+        
+        <div style="display:flex; flex-wrap:wrap; gap:20px; justify-content:space-between; margin-bottom:30px;">
+          <!-- WPM Graph -->
+          <div style="flex:1; min-width:300px; background:#fff; padding:15px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+            <h3>WPM History</h3>
+            <div style="height:250px; position:relative;">
+              <canvas id="wpmChart"></canvas>
+            </div>
+          </div>
+          
+          <!-- Accuracy Graph -->
+          <div style="flex:1; min-width:300px; background:#fff; padding:15px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+            <h3>Accuracy History</h3>
+            <div style="height:250px; position:relative;">
+              <canvas id="accuracyChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- History Table -->
+      <h2 style="margin-top:30px;">🧾 Test History</h2>
+      <table id="historyTable" border="1" cellpadding="6"
+             style="border-collapse:collapse; width:100%; text-align:center; font-size:15px;">
+        <thead>
+          <tr style="background:#f2f2f2;">
+            <th>Date</th>
+            <th>Difficulty</th>
+            <th>WPM</th>
+            <th>Accuracy</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+          <tr><td colspan="4">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <button onclick="window.location.href='index.html'"
+            style="margin-top:30px; padding:10px 20px; font-size:16px;">Try Again</button>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // Show result and growth info on load
+    document.getElementById("resultText").innerText = localStorage.getItem("result") || "";
+    document.addEventListener("DOMContentLoaded", () => {
+      showGrowthAnalysis();
+      showHistoryTable();
+      createPerformanceCharts();
+    });
+
+    // Global chart instances
+    let wpmChart = null;
+    let accuracyChart = null;
+
+    // Create performance charts
+    function createPerformanceCharts() {
+      const history = JSON.parse(localStorage.getItem("allWPM") || "[]");
+      if (!history.length) return;
+
+      // Prepare data for charts
+      const lastTenEntries = [...history].slice(-10).reverse();
+      const dates = lastTenEntries.map(entry => entry.date);
+      const wpmData = lastTenEntries.map(entry => entry.wpm);
+      const accuracyData = lastTenEntries.map(entry => entry.accuracy);
+
+      // Get selected chart type (default to bar)
+      const chartType = document.getElementById('chartType').value;
+      
+      // Create WPM chart
+      const wpmCtx = document.getElementById('wpmChart').getContext('2d');
+      wpmChart = new Chart(wpmCtx, createChartConfig(chartType, dates, wpmData, 'WPM', '#ff9900', 'Words Per Minute'));
+
+      // Create Accuracy chart
+      const accuracyCtx = document.getElementById('accuracyChart').getContext('2d');
+      accuracyChart = new Chart(accuracyCtx, createChartConfig(
+        chartType, 
+        dates, 
+        accuracyData, 
+        'Accuracy %', 
+        '#00ccff', 
+        'Accuracy %',
+        Math.max(0, Math.min(...accuracyData) - 10),
+        100
+      ));
+    }
+
+    // Create chart configuration based on type
+    function createChartConfig(type, labels, data, label, color, yAxisLabel, yMin = null, yMax = null) {
+      // Base configuration
+      const config = {
+        type: type,
+        data: {
+          labels: labels,
+          datasets: [{
+            label: label,
+            data: data,
+            borderColor: color,
+            backgroundColor: type === 'line' ? 
+              `rgba(${hexToRgb(color)}, 0.1)` : 
+              data.map(() => `rgba(${hexToRgb(color)}, 0.7)`),
+            borderWidth: type === 'line' ? 3 : 1,
+            tension: 0.3,
+            fill: type === 'line'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          }
+        }
+      };
+
+      // Add scales for chart types that support them
+      if (['line', 'bar'].includes(type)) {
+        config.options.scales = {
+          y: {
+            beginAtZero: false,
+            title: {
+              display: true,
+              text: yAxisLabel
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Date'
+            }
+          }
+        };
+
+        // Set min/max if provided
+        if (yMin !== null) config.options.scales.y.min = yMin;
+        if (yMax !== null) config.options.scales.y.max = yMax;
+      }
+
+      return config;
+    }
+
+    // Update chart type when selector changes
+    function updateChartType() {
+      // Destroy existing charts
+      if (wpmChart) wpmChart.destroy();
+      if (accuracyChart) accuracyChart.destroy();
+      
+      // Recreate charts with new type
+      createPerformanceCharts();
+    }
+
+    // Helper function to convert hex to rgb
+    function hexToRgb(hex) {
+      // Remove # if present
+      hex = hex.replace('#', '');
+      
+      // Convert 3-digit hex to 6-digit
+      if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+      }
+      
+      // Parse the hex values
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      
+      return `${r}, ${g}, ${b}`;
+    }
+  </script>
+  <script>
+  (function(){
+    try{
+      const user = localStorage.getItem('user');
+      if(!user){
+        window.location.href = 'login.html';
+        return;
+      }
+      if(!document.getElementById('logoutBtn')){
+        const logout = document.createElement('button');
+        logout.id = 'logoutBtn';
+        logout.textContent = 'Logout';
+        logout.className = 'logout-button';
+        logout.addEventListener('click', ()=>{
+          localStorage.clear();
+          window.location.href = 'login.html';
+        });
+        document.body.appendChild(logout);
+      }
+    }catch(e){ console.warn(e); }
+  })();
+  </script>
+</body>
+</html>

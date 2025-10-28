@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Typing Speed Test</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="logo" style="text-align:center;padding-top:10px;"><h2>Typing Speed Test</h2></div>
+  <div class="welcome">
+    <h1>Welcome to Typing Speed Test</h1>
+<div class="top-links" style="margin:10px 0;">
+    <a href="about.html">About</a> 
+  </div>
+
+    <input type="text" id="username" placeholder="Enter your name">
+    
+    <h3 style="text-align:center;">Select Difficulty:</h3>
+<div style="display:flex;justify-content:center;margin-bottom:20px;">
+  <select id="difficulty" style="width:200px;text-align:center;">
+    <option value="easy">Easy</option>
+    <option value="medium">Medium</option>
+    <option value="hard">Hard</option>
+  </select>
+</div>
+
+<h3 style="text-align:center;">Set Time Limit (seconds):</h3>
+<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:20px;">
+  <input type="number" id="mode" min="1" placeholder="Enter seconds (leave blank for unlimited)" style="width:220px;text-align:center;">
+  <label><input type="checkbox" id="unlimitedChk"> No Time Limit</label>
+</div>
+
+<div style="text-align:center;margin-top:15px;">
+  <button onclick="startTest()">Start Test</button>
+</div>
+
+
+  <script>
+    function startTest() {
+      const username = document.getElementById('username').value.trim();
+      const difficulty = document.getElementById('difficulty').value;
+      const modeInput = document.getElementById('mode').value;
+      const noTime = document.getElementById('unlimitedChk').checked;
+
+      if (!username) {
+        alert("Please enter your name!");
+        return;
+      }
+
+      localStorage.setItem("username", username);
+      localStorage.setItem("difficulty", difficulty);
+      localStorage.setItem("mode", noTime ? 'unlimited' : (modeInput || '60'));
+      window.location.href = "test.html";
+    }
+  </script>
+<script>
+(function(){
+  try{
+    const user = localStorage.getItem('user');
+    if(!user){
+      window.location.href = 'login.html';
+      return;
+    }
+    const navs = document.getElementsByClassName('top-links');
+    if(navs.length){
+      const nav = navs[0];
+      if(!document.getElementById('logoutBtn')){
+        const logout = document.createElement('button');
+        logout.id = 'logoutBtn';
+        logout.textContent = 'Logout';
+        logout.className = 'logout-button';
+        logout.addEventListener('click', ()=>{
+          localStorage.clear();
+          window.location.href = 'login.html';
+        });
+        document.body.appendChild(logout);
+      }
+    }
+  }catch(e){ console.warn(e); }
+})();
+</script>
+
+</body>
+</html>

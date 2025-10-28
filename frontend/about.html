@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>About - Locator App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>About this Locator App</h1>
+    <p>The Typing Speed Test website helps users improve their typing skills by measuring typing speed and accuracy. 
+You can choose difficulty levels, set custom time limits, and track your performance instantly. 
+It’s a simple and fun way to practice and boost your typing efficiency.</p>
+    <p><a href="index.html">Back to Home</a></p>
+  </div>
+<script>
+(function(){
+  try{
+    const user = localStorage.getItem('user');
+    if(!user){
+      window.location.href = 'login.html';
+      return;
+    }
+    const navs = document.getElementsByClassName('top-links');
+    if(navs.length){
+      const nav = navs[0];
+      if(!document.getElementById('logoutBtn')){
+        const logout = document.createElement('button');
+        logout.id = 'logoutBtn';
+        logout.textContent = 'Logout';
+        logout.className = 'logout-button';
+        logout.addEventListener('click', ()=>{
+          localStorage.clear();
+          window.location.href = 'login.html';
+        });
+        document.body.appendChild(logout);
+      }
+    }
+  }catch(e){ console.warn(e); }
+})();
+</script>
+
+</body>
+</html>
